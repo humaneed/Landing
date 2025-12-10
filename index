@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+  <title>Mini-Lernapps · Mathe & Deutsch 1.–4. Klasse</title>
+  <style>
+    :root {
+      /* Ruhiger, reduzierter Look – ohne Markenbezug */
+      --bg: #f7f3ed;
+      --bg-soft: #f2ebe2;
+      --card: #fdf9f4;
+      --accent-main: #235c44;
+      --accent-dark: #173c2c;
+      --text-main: #253026;
+      --text-soft: #6b766b;
+      --border-soft: #e1d7c9;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --shadow-soft: 0 16px 40px rgba(32, 46, 36, 0.18);
+
+      /* Akzentfarben pro Mini-App */
+      --c-mathe: #3c8f73;
+      --c-schreiben: #e09f3e;
+      --c-deutsch: #c75a7a;
+      --c-logik: #4f63b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #fbf6ee 0, #f7f3ed 45%, #f2ebe2 100%);
+      color: var(--text-main);
+    }
+
+    /* 9:16 Shell – wie eine App-Seite */
+    .page {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 12px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 520px; /* Handybreite */
+      margin: auto;
+      border-radius: 30px;
+      background: rgba(253, 249, 244, 0.96);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Obere Status-Leiste (kleiner App-Look) */
+    .topbar {
+      padding: 10px 16px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .topbar-pill {
+      border-radius: 999px;
+      padding: 4px 8px;
+      border: 1px solid rgba(209, 196, 173, 0.9);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 14px 14px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* HERO – kompakt für 9:16 */
+    .hero {
+      margin-top: 6px;
+      margin-bottom: 16px;
+      border-radius: 22px;
+      padding: 16px 14px 14px;
+      background: #fdf9f4;
+      border: 1px solid rgba(208, 193, 168, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: -30%;
+      background:
+        radial-gradient(circle at -5% 10%, rgba(196, 77, 113, 0.12) 0, transparent 58%),
+        radial-gradient(circle at 15% 110%, rgba(227, 161, 70, 0.12) 0, transparent 55%),
+        radial-gradient(circle at 120% 20%, rgba(71, 135, 168, 0.14) 0, transparent 55%),
+        radial-gradient(circle at 100% 90%, rgba(71, 152, 120, 0.14) 0, transparent 52%);
+      opacity: 0.9;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+    }
+
+    @media (max-width: 480px) {
+      .hero-inner {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .hero-kicker {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--accent-dark);
+      margin-bottom: 4px;
+    }
+
+    .hero-title {
+      font-size: 20px;
+      line-height: 1.25;
+      font-weight: 720;
+      margin: 0 0 6px;
+    }
+
+    .hero-subtitle {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-soft);
+      margin: 0 0 10px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(210, 196, 176, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--accent-dark);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.12s ease, box-shadow 0.12s ease,
+        background 0.12s ease, color 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent-main);
+      color: #fdf9f4;
+      box-shadow: 0 10px 24px rgba(25, 71, 53, 0.42);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(25, 71, 53, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--accent-dark);
+      border: 1px solid rgba(189, 171, 147, 0.9);
+    }
+
+    .btn-secondary:hover {
+      background: #f5eee4;
+    }
+
+    .hero-note {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    /* Hero Preview – kleine App-Vorschau */
+    .hero-preview {
+      justify-self: flex-end;
+    }
+
+    @media (max-width: 480px) {
+      .hero-preview {
+        justify-self: stretch;
+      }
+    }
+
+    .preview-card {
+      background: #203b2e;
+      border-radius: 22px;
+      padding: 12px 11px 10px;
+      color: #f7f5f0;
+      max-width: 220px;
+      margin-left: auto;
+      box-shadow: 0 14px 34px rgba(16, 32, 26, 0.55);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preview-card::before {
+      content: "";
+      position: absolute;
+      right: -24px;
+      top: 6px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #f5e0b8 0, #f5e0b8 52%, transparent 55%);
+      opacity: 0.85;
+    }
+
+    .preview-header {
+      font-size: 11px;
+      margin-bottom: 7px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .preview-pill {
+      font-size: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(248, 250, 252, 0.12);
+      border: 1px solid rgba(226, 232, 240, 0.45);
+    }
+
+    .preview-main {
+      position: relative;
+      z-index: 1;
+      border-radius: 14px;
+      padding: 9px 9px 7px;
+      background: rgba(10, 26, 20, 0.82);
+      border: 1px solid rgba(209, 213, 219, 0.25);
+      margin-bottom: 7px;
+    }
+
+    .preview-task {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .preview-options {
+      display: grid;
+      gap: 4px;
+    }
+
+    .preview-option {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.72);
+    }
+
+    .preview-option.active {
+      background: #e9f0e1;
+      color: #102318;
+      border-color: #d2e0c3;
+      font-weight: 600;
+    }
+
+    .preview-footer {
+      font-size: 10px;
+      opacity: 0.9;
+      text-align: right;
+    }
+
+    /* Abschnitt-Header */
+    .section {
+      margin-bottom: 18px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    .section-subtitle {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    /* APP-LISTE – gestapelte „Produktkarten“ */
+    .app-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .app-card {
+      position: relative;
+      background: var(--card);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-soft);
+      padding: 11px 12px 10px 14px;
+      box-shadow: 0 10px 22px rgba(46, 56, 46, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: hidden;
+    }
+
+    .app-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 5px;
+      height: 100%;
+      background: var(--c-mathe);
+    }
+
+    .app-card[data-theme="schreiben"]::before { background: var(--c-schreiben); }
+    .app-card[data-theme="deutsch"]::before { background: var(--c-deutsch); }
+    .app-card[data-theme="logik"]::before { background: var(--c-logik); }
+
+    .app-tag-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .app-tag {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #f8f3ea;
+      border: 1px solid rgba(219, 205, 184, 0.9);
+      font-weight: 500;
+    }
+
+    .app-title {
+      font-size: 15px;
+      font-weight: 620;
+    }
+
+    .app-desc {
+      font-size: 12px;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
+    .app-meta {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .app-actions {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-link {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-dark);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #f2ebe2;
+      border: 1px solid rgba(197, 178, 155, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .app-link:hover {
+      background: #e8dece;
+    }
+
+    .badge-soft {
+      font-size: 11px;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      color: var(--text-soft);
+    }
+
+    .badge-soon {
+      background: #fff4cf;
+      color: #92400e;
+    }
+
+    /* Steps & Info – kompakt für 9:16 */
+    .steps {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    .step-card {
+      background: var(--bg-soft);
+      border-radius: 14px;
+      border: 1px dashed rgba(206, 190, 166, 0.9);
+      padding: 9px 10px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .step-number {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: #f5e2b6;
+      color: #7b4a11;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .step-text-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .step-text-body {
+      font-size: 12px;
+      color: var(--text-soft);
+      line-height: 1.4;
+    }
+
+    .info-card {
+      background: var(--bg-soft);
+      border-radius: 18px;
+      padding: 11px 11px 9px;
+      border: 1px solid rgba(210, 196, 175, 0.9);
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-top: 4px;
+    }
+
+    .info-title {
+      font-size: 14px;
+      font-weight: 650;
+      margin-bottom: 4px;
+      color: var(--text-main);
+    }
+
+    .info-list {
+      padding-left: 18px;
+      margin: 0 0 4px;
+    }
+
+    .info-list li {
+      margin-bottom: 3px;
+    }
+
+    .info-note {
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .info-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 5px;
+    }
+
+    .footer {
+      padding: 8px 10px 10px;
+      font-size: 10px;
+      color: var(--text-soft);
+      text-align: center;
+      border-top: 1px solid rgba(221, 206, 186, 0.8);
+      background: #f7f0e6;
+    }
+
+    .footer a {
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main class="shell">
+      <header class="topbar">
+        <div class="topbar-pill">Mini-Lernapps</div>
+        <div>1.–4. Klasse</div>
+      </header>
+
+      <div class="content-scroll">
+        <!-- HERO -->
+        <section class="hero">
+          <div class="hero-inner">
+            <div>
+              <div class="hero-kicker">Browser-Lernhilfe</div>
+              <h1 class="hero-title">Mathe & Deutsch für die Grundschule – ruhig und übersichtlich.</h1>
+              <p class="hero-subtitle">
+                Kleine Lernapps für 1.–4. Klasse, die direkt im Browser laufen. Ohne Anmeldung, ohne Werbung – ideal für kurze Übungsrunden.
+              </p>
+
+              <div class="hero-badges">
+                <div class="badge">📚 1.–4. Klasse</div>
+                <div class="badge">📱 Für Handy & Tablet</div>
+                <div class="badge">✅ Keine Anmeldung</div>
+              </div>
+
+              <div class="hero-actions">
+                <!-- TODO: Link zu deiner Mathe-App -->
+                <a href="DEIN-LINK-ZUR-MATHE-APP" class="btn btn-primary">
+                  Mathe-Trainer öffnen
+                </a>
+                <a href="#apps" class="btn btn-secondary">
+                  Alle Apps ansehen
+                </a>
+              </div>
+
+              <p class="hero-note">
+                Tipp: Lieber öfter 5–10 Minuten üben als einmal eine Stunde – so bleibt Lernen leicht.
+              </p>
+            </div>
+
+            <div class="hero-preview">
+              <div class="preview-card">
+                <div class="preview-header">
+                  <span>Mathe · 3. Klasse</span>
+                  <span class="preview-pill">Tafelansicht</span>
+                </div>
+                <div class="preview-main">
+                  <div class="preview-task">581 ÷ 7 = ?</div>
+                  <div class="preview-options">
+                    <div class="preview-option">78</div>
+                    <div class="preview-option">80</div>
+                    <div class="preview-option">88</div>
+                    <div class="preview-option active">83 ✓</div>
+                  </div>
+                </div>
+                <div class="preview-footer">
+                  Erklärungen auf Knopfdruck ✏️
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- APPS -->
+        <section id="apps" class="section">
+          <div class="section-header">
+            <div class="section-title">Mini-Apps im Überblick</div>
+            <div class="section-subtitle">
+              Eine kleine Sammlung – jede App mit einem klaren Schwerpunkt.
+            </div>
+          </div>
+
+          <div class="app-list">
+            <!-- Mathe -->
+            <article class="app-card" data-theme="mathe">
+              <div class="app-tag-row">
+                <span class="app-tag">Mathe · 1.–4. Klasse</span>
+                <span class="badge-soft">Tafel-Design</span>
+              </div>
+              <h2 class="app-title">Tafel-Mathe Trainer</h2>
+              <p class="app-desc">
+                Plus, Minus, Mal und Geteilt wie auf der Schultafel. Mit Schritt-für-Schritt-Erklärungen
+                zum schriftlichen Rechnen und ruhiger Oberfläche ohne Ablenkung.
+              </p>
+              <p class="app-meta">
+                Empfohlen für 5–10 Minuten Übung – vor der Schule, nach den Hausaufgaben oder zwischendurch.
+              </p>
+              <div class="app-actions">
+                <a href="DEIN-LINK-ZUR-MATHE-APP" class="app-link">
+                  Jetzt starten →
+                </a>
+                <span class="badge-soft">Browser-App</span>
+              </div>
+            </article>
+
+            <!-- Schreiben / Nachspuren -->
+            <article class="app-card" data-theme="schreiben">
+              <div class="app-tag-row">
+                <span class="app-tag">Schreiben · Vorschule–2. Klasse</span>
+                <span class="badge-soft">Feinmotorik</span>
+              </div>
+              <h2 class="app-title">Nachspur-ABC</h2>
+              <p class="app-desc">
+                Groß- und Kleinbuchstaben sowie Zahlen auf Hilfslinien nachspuren – ähnlich wie in
+                den Schulheften. Unterstützt sichere Schreibbewegungen und saubere Buchstabenform.
+              </p>
+              <p class="app-meta">
+                Mit Farbauswahl für „Kreidefarben“, damit Kinder ihren Stil wählen können.
+              </p>
+              <div class="app-actions">
+                <a href="DEIN-LINK-ZUR-NACHSPUR-APP" class="app-link">
+                  Jetzt nachspuren →
+                </a>
+                <span class="badge-soft">Tablet empfohlen</span>
+              </div>
+            </article>
+
+            <!-- Deutsch -->
+            <article class="app-card" data-theme="deutsch">
+              <div class="app-tag-row">
+                <span class="app-tag">Deutsch · 2.–4. Klasse</span>
+                <span class="badge-soft">Sätze & Grammatik</span>
+              </div>
+              <h2 class="app-title">Deutsch-Fragentrainer</h2>
+              <p class="app-desc">
+                Fragen und Sätze passend zum Grundschul-Lehrplan: Satzbau, Fragewörter und kleine
+                Lückentexte, um Sprachgefühl und Lesekompetenz zu stärken.
+              </p>
+              <p class="app-meta">
+                Ideal zum gemeinsamen Besprechen oder zum leisen Üben mit Vorlesefunktion.
+              </p>
+              <div class="app-actions">
+                <a href="DEIN-LINK-ZUR-DEUTSCH-APP" class="app-link">
+                  Fragen üben →
+                </a>
+                <span class="badge-soft">Browser-App</span>
+              </div>
+            </article>
+
+            <!-- Logik / bald -->
+            <article class="app-card" data-theme="logik">
+              <div class="app-tag-row">
+                <span class="app-tag">Logik · 2.–4. Klasse</span>
+                <span class="badge-soft badge-soon">Bald verfügbar</span>
+              </div>
+              <h2 class="app-title">Logik-Labyrinth</h2>
+              <p class="app-desc">
+                Knobeleien und kleine Rätsel, bei denen Kinder logisch denken, Muster
+                erkennen und Strategien ausprobieren können.
+              </p>
+              <p class="app-meta">
+                Dieser Bereich ist in Vorbereitung – hier kommen später neue Mini-Rätsel dazu.
+              </p>
+              <div class="app-actions">
+                <span class="app-link" style="pointer-events:none;opacity:0.7;">
+                  Bald verfügbar
+                </span>
+                <span class="badge-soft">Work in progress</span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- SO FUNKTIONIERT'S -->
+        <section class="section">
+          <div class="section-header">
+            <div class="section-title">So funktioniert es</div>
+          </div>
+
+          <div class="steps">
+            <div class="step-card">
+              <div class="step-number">1</div>
+              <div>
+                <div class="step-text-title">App auswählen</div>
+                <div class="step-text-body">
+                  Thema wählen: Mathe, Schreiben oder Deutsch – je nachdem, was gerade dran ist.
+                </div>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">2</div>
+              <div>
+                <div class="step-text-title">Klassenstufe einstellen</div>
+                <div class="step-text-body">
+                  In der App die Klassenstufe wählen (z.&nbsp;B. 1. Klasse) und auf „Neue Aufgabe“ tippen.
+                </div>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">3</div>
+              <div>
+                <div class="step-text-title">Kurz & regelmäßig üben</div>
+                <div class="step-text-body">
+                  Lieber regelmäßig 5–10 Minuten als selten lange – so bleibt Lernen entspannt.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- FÜR ELTERN -->
+        <section class="section">
+          <div class="info-card">
+            <div class="info-title">Für Eltern</div>
+            <ul class="info-list">
+              <li>Keine Anmeldung, keine Passwörter, keine Werbung.</li>
+              <li>Läuft direkt im Browser – auch auf älteren Geräten.</li>
+              <li>Bewusst ruhiges Design ohne blinkende Ablenkung.</li>
+              <li>Kinder können vieles alleine entdecken, ihr könnt jederzeit begleiten.</li>
+            </ul>
+            <div class="info-note">
+              Die Mini-Apps ersetzen keinen Unterricht – sie sind eine kleine, fokussierte Ergänzung für Zuhause.
+            </div>
+            <div class="info-tags">
+              <span class="badge-soft">🧩 Open-Source-Projekt</span>
+              <span class="badge-soft">🌐 Offline nutzbar nach dem Laden</span>
+              <span class="badge-soft">🔒 Es werden keine persönlichen Daten abgefragt</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="footer">
+        Entwickelt als kleine Lernhilfe für Grundschulkinder.
+        <!-- TODO: GitHub-Link ergänzen -->
+        Projekt auf <a href="DEIN-GITHUB-LINK">GitHub ansehen</a>.
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
